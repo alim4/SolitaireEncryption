@@ -13,7 +13,10 @@ def main():
     deck = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ12'
     result = []
 
-    print convert_val_to_char(53)
+    print convert_char_to_val('z')
+    print convert_char_to_val('c')
+    print convert_val_to_char(convert_char_to_val('Y') + convert_char_to_val('c'))
+    print convert_val_to_char(1)
 
     flag = get_input()
     while flag != 'e' and flag != 'd':
@@ -51,14 +54,24 @@ def encrypt_message(msg, deck):
             continue
         aa = convert_char_to_val(msg[i])
         bb = convert_char_to_val(deck[i])
-        print ("aa: {0} | bb: {1}".format(aa, bb))
-        temp = convert_val_to_char((convert_char_to_val(msg[i]) + convert_char_to_val(deck[i]) % 52))
+        print ("msg: {0} | deck: {1}".format(aa, bb))
+        temp = convert_val_to_char((convert_char_to_val(msg[i]) + convert_char_to_val(deck[i])) % 52)
         result.append(temp)
 
     return result
 
 def decrypt_message(msg, deck):
-    return
+    result = []
+    for i in range(msg.__len__()):
+        if msg[i].isspace() or msg[i].isdigit():
+            continue
+        aa = convert_char_to_val(msg[i])
+        bb = convert_char_to_val(deck[i])
+        print ("msg: {0} | deck: {1}".format(aa, bb))
+        temp = convert_val_to_char((convert_char_to_val(msg[i]) - convert_char_to_val(deck[i])) % 52)
+        result.append(temp)
+
+    return result
 
 # Convert a CHARACTER to an ASCII INTEGER
 def convert_char_to_val(char):
@@ -67,14 +80,13 @@ def convert_char_to_val(char):
     if char.islower():
         c = ord(char) - ord(base) + 1
     elif char.isupper():
-        c = ((ord('A') - ord('a')) % 26) + 7
+        c = ((ord(char) - ord(base)) % 52) + 7
 
     return int(c)
 
 # Convert an ASCII INTEGER value to a CHARACTER
 def convert_val_to_char(val):
     base = 'a'
-    deck = 52
 
     if 26 < val <= 52:
         v = chr((val % 53) + ord('a') - 59)
