@@ -10,20 +10,25 @@ __author__ = 'anthonylim'
 # Solitaire encryption
 
 def main():
-    deck = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ12'
+    deck = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ12"
     result = []
 
-    print convert_char_to_val('z')
-    print convert_char_to_val('c')
-    print convert_val_to_char(convert_char_to_val('Y') + convert_char_to_val('c'))
-    print convert_val_to_char(1)
+    print deck
+    print shuffle(deck)
+
+    print("")
+    # print convert_char_to_val('z')
+    # print convert_char_to_val('c')
+    # print convert_val_to_char(convert_char_to_val('Y') + convert_char_to_val('c'))
+    # print convert_val_to_char(1)
 
     flag = get_input()
     while flag != 'e' and flag != 'd':
         flag = get_input()
 
     message = raw_input("What is your message? ")
-    deck = raw_input("What is the initial deck? ")
+    #deck = raw_input("What is the initial deck? ")
+    print deck
 
     if flag == 'e':
         result = encrypt_message(message, deck)
@@ -72,6 +77,72 @@ def decrypt_message(msg, deck):
         result.append(temp)
 
     return result
+
+def shuffle(deck):
+    # Find first Joker (1), find next index
+    joker_i = deck.index('1')
+    next_i = joker_i + 1
+
+    # Swap
+    mydeck = list(deck)
+
+    # If joker is in last index in deck
+    if joker_i == deck.__len__()-1:
+        mydeck = swap(mydeck, joker_i, 1)
+    else:
+        mydeck = swap(mydeck, joker_i, next_i)
+
+    # Move second joker down two places
+    joker_i2 = mydeck.index('2')
+    next_i2 = (joker_i2 + 2) % deck.__len__()
+
+    if joker_i2 > deck.__len__()-2:
+        mydeck = swap(mydeck, joker_i2, 1)
+    else:
+        # If 2 is last index
+        if next_i2 == 0:
+            mydeck.insert(1, mydeck.pop(joker_i2))
+            #mydeck = swap(mydeck, joker_i2, 1)
+        # If 2 is second to last index
+        # elif next_i2 == 1:
+        #     mydeck = swap(mydeck, joker_i2, 1)
+        else:
+            mydeck = swap(mydeck, joker_i2, next_i2)
+
+    # Triple Cut
+    # Find first instance of a joker to determine
+    # where to cut and in what order
+    for i in mydeck:
+        if i == '1':
+            first = '1'
+            second = '2'
+            break
+        elif i == '2':
+            first = '2'
+            second = '1'
+            break
+
+    right = mydeck[mydeck.index(second)+1:mydeck.__len__()]
+    mydeck[mydeck.index(second)+1:mydeck.__len__()] = mydeck[0:mydeck.index(first)]
+    mydeck[0:mydeck.index(first)] = right
+
+    # Shift top
+    print convert_char_to_val(mydeck[-1])
+
+    if mydeck[-1] != '1' and mydeck[-1] != '2':
+        num_to_shift = convert_char_to_val(mydeck[-1])
+        len = mydeck.__len__() - 1
+        last_char = list(mydeck[-1])
+        shift = mydeck[0:num_to_shift]
+        left_side = mydeck[num_to_shift:len]
+
+        mydeck = left_side + shift + last_char
+
+    return ''.join(mydeck)
+
+def swap(text, i, j):
+    text[i], text[j] = text[j], text[i]
+    return list(''.join(text))
 
 # Convert a CHARACTER to an ASCII INTEGER
 def convert_char_to_val(char):
