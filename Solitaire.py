@@ -13,8 +13,14 @@ def main():
     deck = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ12"
     result = []
 
-    print deck
-    print shuffle(deck)
+    # for i in range(97, 123):
+    #     print "{0}: {1}".format(i, convert_val_to_char(convert_char_to_val(chr(i))))
+    #
+    # for i in range(65, 91):
+    #     print convert_val_to_char(convert_char_to_val(chr(i)))
+    #
+    # print deck
+    # print shuffle(deck)
 
     print("")
     # print convert_char_to_val('z')
@@ -22,11 +28,13 @@ def main():
     # print convert_val_to_char(convert_char_to_val('Y') + convert_char_to_val('c'))
     # print convert_val_to_char(1)
 
-    flag = get_input()
-    while flag != 'e' and flag != 'd':
-        flag = get_input()
+    #flag = get_input()
+    #while flag != 'e' and flag != 'd':
+    #    flag = get_input()
 
-    message = raw_input("What is your message? ")
+    flag = 'e'
+    message = 'Please type your'
+    #message = raw_input("What is your message? ")
     #deck = raw_input("What is the initial deck? ")
     print deck
 
@@ -35,7 +43,7 @@ def main():
     if flag == 'd':
         result = decrypt_message(message, deck)
 
-    print result
+    print ''.join(result)
 
     return 0
 
@@ -56,12 +64,18 @@ def encrypt_message(msg, deck):
     result = []
     for i in range(msg.__len__()):
         if msg[i].isspace() or msg[i].isdigit():
+            result.append(" ")
             continue
-        aa = convert_char_to_val(msg[i])
-        bb = convert_char_to_val(deck[i])
-        print ("msg: {0} | deck: {1}".format(aa, bb))
-        temp = convert_val_to_char((convert_char_to_val(msg[i]) + convert_char_to_val(deck[i])) % 52)
-        result.append(temp)
+        # Choose correct deck index to use as cipher
+        deck = shuffle(deck)
+        print deck[0]
+        shift = convert_char_to_val(deck[0])
+
+        print shift
+        print "deck shift: " + deck[shift + 1]
+        enc_ltr = encrypt_letter(msg[i], deck[shift+1])
+        result.append(enc_ltr)
+
 
     return result
 
@@ -78,7 +92,22 @@ def decrypt_message(msg, deck):
 
     return result
 
+def encrypt_letter(ltr, key):
+    '''
+    Works on per letter basis
+    Returns a letter with given offset based on key
+    '''
+    offset = convert_char_to_val(key)
+    letter = convert_char_to_val(ltr)
+    enc_ltr = convert_val_to_char((letter + offset) % 52)
+    print "ENCRYPTED LETTER: " + enc_ltr
+    return enc_ltr
+
 def shuffle(deck):
+    '''
+    Given the deck, shuffles using the Solitaire algorithm
+    Returns the shuffled deck
+    '''
     # Find first Joker (1), find next index
     joker_i = deck.index('1')
     next_i = joker_i + 1
@@ -92,9 +121,13 @@ def shuffle(deck):
     else:
         mydeck = swap(mydeck, joker_i, next_i)
 
+    print "Joker 1: \t" + ''.join(mydeck)
+
     # Move second joker down two places
     joker_i2 = mydeck.index('2')
     next_i2 = (joker_i2 + 2) % deck.__len__()
+
+
 
     if joker_i2 > deck.__len__()-2:
         mydeck = swap(mydeck, joker_i2, 1)
@@ -107,7 +140,10 @@ def shuffle(deck):
         # elif next_i2 == 1:
         #     mydeck = swap(mydeck, joker_i2, 1)
         else:
-            mydeck = swap(mydeck, joker_i2, next_i2)
+            #mydeck = swap(mydeck, joker_i2, next_i2)
+            mydeck.insert(next_i2, mydeck.pop(joker_i2))
+
+    print "Joker 2: \t" + ''.join(mydeck)
 
     # Triple Cut
     # Find first instance of a joker to determine
@@ -126,9 +162,9 @@ def shuffle(deck):
     mydeck[mydeck.index(second)+1:mydeck.__len__()] = mydeck[0:mydeck.index(first)]
     mydeck[0:mydeck.index(first)] = right
 
-    # Shift top
-    print convert_char_to_val(mydeck[-1])
+    print "Triple cut: " + ''.join(mydeck)
 
+    # Shift top
     if mydeck[-1] != '1' and mydeck[-1] != '2':
         num_to_shift = convert_char_to_val(mydeck[-1])
         len = mydeck.__len__() - 1
@@ -138,6 +174,9 @@ def shuffle(deck):
 
         mydeck = left_side + shift + last_char
 
+    print "Shift top: \t" + ''.join(mydeck)
+    print("")
+
     return ''.join(mydeck)
 
 def swap(text, i, j):
@@ -146,24 +185,23 @@ def swap(text, i, j):
 
 # Convert a CHARACTER to an ASCII INTEGER
 def convert_char_to_val(char):
-    c = ''
     base = 'a'
     if char.islower():
         c = ord(char) - ord(base) + 1
-    elif char.isupper():
+    else:
         c = ((ord(char) - ord(base)) % 52) + 7
 
-    return int(c)
+    return c
 
 # Convert an ASCII INTEGER value to a CHARACTER
 def convert_val_to_char(val):
     base = 'a'
+    val %= 53
 
     if 26 < val <= 52:
-        v = chr((val % 53) + ord('a') - 59)
+        v = chr(ord(base) + val - 59)
     else:
-        v = chr((val % 52) + ord('a') - 1)
-
+        v = chr(ord(base) + val - 1)
 
     return v
 
